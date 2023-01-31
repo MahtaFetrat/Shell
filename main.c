@@ -20,6 +20,8 @@ int main()
         printf("Input command: %d\n", cmd_code);
     } while (1);
 
+    destroy_parser();
+
     // Free placeholder array for arguments of the input commands.
     for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
         free(cmd_args[i]);

@@ -15,3 +15,8 @@ void initialize_parser();
  * @return code of the matching command or -1 if no match found
  */
 int parse(char *input, char **cmd_args);
+
+/**
+ * Frees parser allocated spaces.
+ */
+void destroy_parser();

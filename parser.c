@@ -50,3 +50,8 @@ int parse(char *input, char **cmd_args)
 
     return -1;
 }
+
+void destroy_parser()
+{
+    free(compiled_regexes);
+}
