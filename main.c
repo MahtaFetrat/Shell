@@ -24,7 +24,7 @@ int main()
         if (cmd_code == 0) // quit cmd
             quitted = 1;
         else if (cmd_code == -1)
-            printf("Commnad not found\n");
+            printf("Command not found\n");
         else
             execute_command(cmd_code, argc, argv);
     };
