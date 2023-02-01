@@ -24,11 +24,8 @@ void tokenize_env_paths(char *PATH, char **paths)
 
 void initialize_executor()
 {
-    // Allocate str placeholder for environmental paths
+    // Set environment PATHs for execution.
     env_paths = (char **)malloc(MAX_ENV_PATHS * sizeof(char *));
-    for (int i = 0; i < MAX_ENV_PATHS; i++)
-        env_paths[i] = (char *)malloc(MAX_PATH_LEN * sizeof(char));
-
     char *PATH = getenv("PATH");
     tokenize_env_paths(PATH, env_paths);
 
@@ -36,14 +33,9 @@ void initialize_executor()
     chdir(getenv("HOME"));
 }
 
-void print_help()
-{
-    printf("Help will be implemented here soon ...\n");
-}
-
 int set_executable_path(char **argv)
 {
-    if (strchr(argv[0], '/')) // Absolute or Relative path
+    if (strchr(argv[0], '/') != NULL) // Absolute or Relative path
     {
         if (access(argv[0], F_OK) != 0)
         {
@@ -61,6 +53,7 @@ int set_executable_path(char **argv)
     {
         int i = 0;
         char catenated_path[200];
+
         while (env_paths[i] != NULL)
         {
             sprintf(catenated_path, "%s/%s", env_paths[i], argv[0]);
@@ -103,6 +96,13 @@ void run_program(char **argv)
         exec(argv);
 }
 
+void cwd()
+{
+    char cwd[200];
+    getcwd(cwd, 200);
+    printf("%s\n", cwd);
+}
+
 void cd(char **argv)
 {
     // Replace ~ by HOME since non-recognized by chdir.
@@ -119,11 +119,9 @@ void cd(char **argv)
     }
 }
 
-void cwd()
+void print_help()
 {
-    char cwd[200];
-    getcwd(cwd, 200);
-    printf("%s\n", cwd);
+    printf("Help will be implemented here soon ...\n");
 }
 
 void execute_command(int cmd_code, int argc, char **argv)

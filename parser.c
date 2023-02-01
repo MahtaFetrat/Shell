@@ -31,7 +31,8 @@ void initialize_parser()
 void get_args(char *input, int *argc, char **argv)
 {
     char *saveptr;
-    argv[0] = strtok_r(input, " ", &saveptr);
+    strcpy(argv[0], strtok_r(input, " ", &saveptr));
+    // argv[0] = strtok_r(input, " ", &saveptr);
 
     int i = 0;
     while (argv[i] != NULL)

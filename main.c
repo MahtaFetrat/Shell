@@ -22,10 +22,8 @@ void print_prompt()
 int main()
 {
     int argc;
-    // Initialize placeholder array for arguments of the input commands.
     char **argv = (char **)malloc(MAX_CMD_ARG_COUNT * sizeof(char *));
-    for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
-        argv[i] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char));
+    argv[0] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char *)); // First arg is allocted for path.
 
     initialize_parser();
     initialize_executor();
@@ -50,9 +48,8 @@ int main()
     destroy_parser();
     destroy_executor();
 
-    for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
-        free(argv[i]);
     free(argv);
+    free(argv[0]);
 
     return 0;
 }
