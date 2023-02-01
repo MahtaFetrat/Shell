@@ -72,7 +72,7 @@ int set_executable_path(char **argv)
             i++;
         }
         // Neither a path nor a file found in $PATH
-        printf("%s: command not found\n", argv[0]);
+        printf("%s: Invalid use of command\n", argv[0]);
         return 3;
     }
 }
@@ -105,7 +105,10 @@ void run_program(char **argv)
 
 void cd(char **argv)
 {
-    // TODO
+    if (chdir(argv[1]) != 0)
+    {
+        printf("cd: Inaccessible directory");
+    }
 }
 
 void cwd()

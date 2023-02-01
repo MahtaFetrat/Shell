@@ -10,7 +10,7 @@ const int MAX_CMD_ARG_LEN = 100;
 static const char *COMMANDS[] = {
     "^[[:space:]]*quit[[:space:]]*$",
     "^[[:space:]]*help[[:space:]]*$",
-    "^[[:space:]]*cd[[:space:]]+([^[:space:]]+)[[:space:]]*$",
+    "^[[:space:]]*cd[[:space:]]+[^[:space:]]+[[:space:]]*$",
     "^[[:space:]]*cwd[[:space:]]*$",
     "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]]+)*[[:space:]]*$"};
 
