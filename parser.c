@@ -2,11 +2,15 @@
 #include <regex.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 const int MAX_CMD_ARG_COUNT = 50;
 const int MAX_CMD_ARG_LEN = 100;
 
-static const char *COMMANDS[] = {"quit"};
+static const char *COMMANDS[] = {
+    "^[[:space:]]*quit[[:space:]]*$",
+    "^[[:space:]]*help[[:space:]]*$",
+    "^[[:space:]]*([^[:space:]]+)([[:space:]]+[^[:space:]]+)*[[:space:]]*$"};
 
 int command_count;
 regex_t *compiled_regexes;
@@ -22,28 +26,26 @@ void initialize_parser()
     }
 }
 
-void extract_cmd_args(char *input, char **cmd_args, regmatch_t match_indices[])
+void get_args(char *input, int *argc, char **argv)
 {
+    char *saveptr;
+    argv[0] = strtok_r(input, " ", &saveptr);
+
     int i = 0;
-    while (match_indices[i].rm_so != -1)
+    while (argv[i] != NULL)
     {
-        int arg_len = match_indices->rm_eo - match_indices->rm_so;
-        strncpy(cmd_args[i], input + match_indices->rm_so, arg_len);
-        cmd_args[i][match_indices->rm_eo] = 0;
-        i++;
+        argv[++i] = strtok_r(NULL, " ", &saveptr);
     }
-    cmd_args[i] = NULL;
+    *argc = i;
 }
 
-int parse(char *input, char **cmd_args)
+int parse(char *input, int *argc, char **argv)
 {
-    regmatch_t match_indices[MAX_CMD_ARG_COUNT];
-
     for (int i = 0; i < command_count; i++)
     {
-        if (regexec(&(compiled_regexes[i]), input, MAX_CMD_ARG_COUNT, match_indices, 0) == 0)
+        if (regexec(&(compiled_regexes[i]), input, 0, NULL, 0) == 0)
         {
-            extract_cmd_args(input, cmd_args, match_indices);
+            get_args(input, argc, argv);
             return i;
         }
     }

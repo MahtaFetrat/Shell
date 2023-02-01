@@ -10,11 +10,11 @@ void initialize_parser();
  * Parses the user input string with a matching command
  *
  * @param char *input ... user input command
- * @param char **cmd_args ... placeholder array of the parsed arguments
+ * @param char **argv ... placeholder array of the parsed arguments
  *
  * @return code of the matching command or -1 if no match found
  */
-int parse(char *input, char **cmd_args);
+int parse(char *input, int *argc, char **argv);
 
 /**
  * Frees parser allocated spaces.

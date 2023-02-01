@@ -1,31 +1,39 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "parser.h"
+#include "executor.h"
 
 int main()
 {
+    int argc;
     // Initialize placeholder array for arguments of the input commands.
-    char **cmd_args = (char **)malloc(MAX_CMD_ARG_COUNT * sizeof(char *));
+    char **argv = (char **)malloc(MAX_CMD_ARG_COUNT * sizeof(char *));
     for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
-        cmd_args[i] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char));
+        argv[i] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char));
 
     initialize_parser();
 
     char input[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
+    int quitted = 0;
 
-    do
+    while (!quitted)
     {
-        scanf("%s", input);
-        int cmd_code = parse(input, cmd_args);
-        printf("Input command: %d\n", cmd_code);
-    } while (1);
+        scanf("%[^\n]%*c", input); // Input line (including white-spaces).
+        int cmd_code = parse(input, &argc, argv);
+
+        if (cmd_code == 0) // quit cmd
+            quitted = 1;
+        else if (cmd_code == -1)
+            printf("Commnad not found\n");
+        else
+            execute_command(cmd_code, argc, argv);
+    };
 
     destroy_parser();
 
-    // Free placeholder array for arguments of the input commands.
     for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
-        free(cmd_args[i]);
-    free(cmd_args);
+        free(argv[i]);
+    free(argv);
 
     return 0;
 }
