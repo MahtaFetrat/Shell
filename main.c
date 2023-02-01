@@ -12,6 +12,7 @@ int main()
         argv[i] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char));
 
     initialize_parser();
+    initialize_executor();
 
     char input[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
     int quitted = 0;
@@ -30,6 +31,7 @@ int main()
     };
 
     destroy_parser();
+    destroy_executor();
 
     for (int i = 0; i < MAX_CMD_ARG_COUNT; i++)
         free(argv[i]);
