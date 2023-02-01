@@ -1,5 +1,8 @@
 #include "executor.h"
 #include <stdio.h>
+#include<unistd.h>
+#include <sys/wait.h>
+
 
 void print_help()
 {
@@ -8,9 +11,19 @@ void print_help()
 
 void run(int argc, char **argv)
 {
-    for (int i = 0; i < argc; i++)
-        printf("arg: %s\n", argv[i]);
+    pid_t pid = fork ();
+    if (pid < 0) { 
+        perror("Failed to create new process");
+    }
+    else if (pid==0) { 
+        if (execv(argv[0], argv)) {
+            perror ("Execution failed");
+        }
+    } else {
+        waitpid(pid, NULL, 0);
+    }
 }
+
 
 void execute_command(int cmd_code, int argc, char **argv)
 {
