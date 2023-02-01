@@ -2,6 +2,22 @@
 #include "stdlib.h"
 #include "parser.h"
 #include "executor.h"
+#include <unistd.h>
+#include <string.h>
+
+void print_prompt()
+{
+    char prompt[200];
+    getcwd(prompt, 200);
+
+    char *home = getenv("HOME");
+    int home_len = strlen(home);
+
+    if (strncmp(prompt, home, home_len) == 0)
+        printf("~%s$ ", prompt + home_len);
+    else
+        printf("%s$ ", prompt);
+}
 
 int main()
 {
@@ -19,6 +35,7 @@ int main()
 
     while (!quitted)
     {
+        print_prompt();
         scanf("%[^\n]%*c", input); // Input line (including white-spaces).
         int cmd_code = parse(input, &argc, argv);
 
