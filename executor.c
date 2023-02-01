@@ -47,12 +47,12 @@ int set_executable_path(char **argv)
     {
         if (access(argv[0], F_OK) != 0)
         {
-            printf("Exection failed: No such file or directory");
+            printf("Exection failed: No such file or directory\n");
             return 1;
         }
         else if (access(argv[0], X_OK) != 0)
         {
-            printf("Exection failed: Permission denied");
+            printf("Exection failed: Permission denied\n");
             return 2;
         }
         return 0;
@@ -107,7 +107,7 @@ void cd(char **argv)
 {
     if (chdir(argv[1]) != 0)
     {
-        printf("cd: Inaccessible directory");
+        printf("cd: Inaccessible directory\n");
     }
 }
 
