@@ -121,7 +121,12 @@ void cd(char **argv)
 
 void print_help()
 {
-    printf("Help will be implemented here soon ...\n");
+    printf("These shell commands are defined internally.  Type `help' to see this list.\n");
+    printf("quit\t\t\tExit the shell\n");
+    printf("cd [dir]\t\tChange the shell working directory.\n");
+    printf("cwd\t\t\tPrint the name of the current working directory.\n");
+    printf("[program] [args ...]\tExecute program with absolute/relative path or found in PATH dirs with the given args.\n");
+    printf("help\t\t\tDisplay information about builtin commands.\n");
 }
 
 void execute_command(int cmd_code, int argc, char **argv)
