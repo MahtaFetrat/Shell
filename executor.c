@@ -105,6 +105,14 @@ void run_program(char **argv)
 
 void cd(char **argv)
 {
+    // Replace ~ by HOME since non-recognized by chdir.
+    if (strcmp(argv[1], "~") == 0 || (argv[1][0] == '~' && argv[1][1] == '/'))
+    {
+        char home_replaced[200];
+        sprintf(home_replaced, "%s%s", getenv("HOME"), argv[1] + 1);
+        strcpy(argv[1], home_replaced);
+    }
+
     if (chdir(argv[1]) != 0)
     {
         printf("cd: Inaccessible directory\n");
