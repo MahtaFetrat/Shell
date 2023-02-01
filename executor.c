@@ -31,6 +31,9 @@ void initialize_executor()
 
     char *PATH = getenv("PATH");
     tokenize_env_paths(PATH, env_paths);
+
+    // Change working directory to home.
+    chdir(getenv("HOME"));
 }
 
 void print_help()
@@ -57,13 +60,13 @@ int set_executable_path(char **argv)
     else // Lookup in the $PATH directories
     {
         int i = 0;
-        char concatenated_path[200];
+        char catenated_path[200];
         while (env_paths[i] != NULL)
         {
-            sprintf(concatenated_path, "%s/%s", env_paths[i], argv[0]);
-            if (access(concatenated_path, X_OK) == 0)
+            sprintf(catenated_path, "%s/%s", env_paths[i], argv[0]);
+            if (access(catenated_path, X_OK) == 0)
             {
-                strcpy(argv[0], concatenated_path);
+                strcpy(argv[0], catenated_path);
                 return 0;
             }
             i++;
@@ -94,18 +97,34 @@ void exec(char **argv)
     }
 }
 
-void run_program(int argc, char **argv)
+void run_program(char **argv)
 {
     if (set_executable_path(argv) == 0)
         exec(argv);
+}
+
+void cd(char **argv)
+{
+    // TODO
+}
+
+void cwd()
+{
+    char cwd[200];
+    getcwd(cwd, 200);
+    printf("%s\n", cwd);
 }
 
 void execute_command(int cmd_code, int argc, char **argv)
 {
     if (cmd_code == 1) // help
         print_help();
-    else if (cmd_code == 2) // run command
-        run_program(argc, argv);
+    else if (cmd_code == 2) // cd command
+        cd(argv);
+    else if (cmd_code == 3) // cwd command
+        cwd();
+    else if (cmd_code == 4) // run command
+        run_program(argv);
 }
 
 void destroy_executor()
