@@ -33,6 +33,9 @@ void initialize_executor()
     chdir(getenv("HOME"));
 }
 
+/**
+ * Converts any user input path for the program to some absolute executable path
+*/
 int set_executable_path(char **argv)
 {
     if (strchr(argv[0], '/') != NULL) // Absolute or Relative path

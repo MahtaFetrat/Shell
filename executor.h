@@ -1,4 +1,8 @@
 /**
+ * This module executes the user input commands.
+*/
+
+/**
  * Sets environmental execution paths.
  */
 void initialize_executor();

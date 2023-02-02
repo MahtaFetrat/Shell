@@ -1,3 +1,8 @@
+/**
+ * This module matches the user input to one of the pre-defined
+ * command patters and parses the input to its arguments.
+*/
+
 extern const int MAX_CMD_ARG_COUNT;
 extern const int MAX_CMD_ARG_LEN;
 
