@@ -34,17 +34,20 @@ int main()
     while (!quitted)
     {
         print_prompt();
-        scanf("%[^\n]%*c", input); // Input line (including white-spaces).
-        int cmd_code = parse(input, &argc, argv);
+        if (scanf("%[^\n]%*c", input) != 0) // Input line (including white-spaces).
+        {
+            int cmd_code = parse(input, &argc, argv);
 
-        if (cmd_code == 0) // quit cmd
-            quitted = 1;
-        else if (cmd_code == -1)
-            printf("Command not found\n");
+            if (cmd_code == 0) // quit cmd
+                quitted = 1;
+            else if (cmd_code == -1)
+                printf("Command not found\n");
+            else
+                execute_command(cmd_code, argc, argv);
+        }
         else
-            execute_command(cmd_code, argc, argv);
+            scanf("%*c");   // Consume newline character.
     };
-
     destroy_parser();
     destroy_executor();
 
