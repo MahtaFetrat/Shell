@@ -146,7 +146,5 @@ void execute_command(int cmd_code, int argc, char **argv)
 
 void destroy_executor()
 {
-    for (int i = 0; i < MAX_ENV_PATHS; i++)
-        free(env_paths[i]);
     free(env_paths);
 }

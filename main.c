@@ -52,7 +52,6 @@ int main()
     destroy_executor();
 
     free(argv);
-    free(argv[0]);
 
     return 0;
 }
