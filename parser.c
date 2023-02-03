@@ -16,6 +16,7 @@ static const char *COMMANDS[] = {
     "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]*)*[[:space:]]+>[[:space:]]+[^[:space:]><]+[[:space:]]*$", // [program] [args ...] > [outfile]
     "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]*)*[[:space:]]+<[[:space:]]+[^[:space:]><]+[[:space:]]*$", // [program] [args ...] < [infile]
     "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]+)*[[:space:]]+&[[:space:]]*$",                            // [program] [args ...] &
+    "^([[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]+)*[[:space:]]*;)+[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]+)*[[:space:]]*$", // [program] [args ...]; [program] [args ...]; ...
     "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]+)*[[:space:]]*$"};                                        // [program] [args ...]
 
 int command_count;

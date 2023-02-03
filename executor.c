@@ -209,6 +209,65 @@ void run_background(int argc, char **argv)
         exec_background(argc, argv);
 }
 
+void run_exec_parallel(char *command)
+{
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        char **argv = (char **)malloc(50 * sizeof(char *));
+        argv[0] = (char *)malloc(100 * sizeof(char *));
+
+        char *ptr;
+        strcpy(argv[0], strtok_r(command, " ", &ptr));
+
+        int j = 0;
+        while (argv[j] != NULL)
+        {
+            argv[++j] = strtok_r(NULL, " ", &ptr);
+        }
+        if (execv(argv[0], argv))
+        {
+            perror("Execution failed");
+        }
+    }
+}
+
+void run_parallel(int argc, char **argv)
+{
+    char input_buffer[50 * (100 + 2)];
+    for (int i = 0; i < argc; i++)
+    {
+        strcat(input_buffer, " ");
+        strcat(input_buffer, argv[i]);
+    }
+
+    char **commands = (char **)malloc(50 * sizeof(char *));
+    for (int i = 0; i < 50; i++)
+    {
+        commands[i] = (char *)malloc(30 * sizeof(char));
+    }
+
+    int count;
+    char *saveptr;
+    strcpy(commands[0], strtok_r(input_buffer, ";", &saveptr));
+
+    int i = 0;
+    while (commands[i] != NULL)
+    {
+        commands[++i] = strtok_r(NULL, ";", &saveptr);
+    }
+    count = i;
+
+    for (int i = 0; i < count; i++)
+    {
+        run_exec_parallel(commands[i]);
+    }
+}
+
 void exec(char **argv)
 {
     pid_t pid = fork();
@@ -288,7 +347,9 @@ void execute_command(int cmd_code, int argc, char **argv)
         run_redirect_input(argc, argv);
     else if (cmd_code == 7) // run background
         run_background(argc, argv);
-    else if (cmd_code == 8) // run command
+    else if (cmd_code == 8)
+        run_parallel(argc, argv);
+    else if (cmd_code == 9) // run command
         run(argv);
 }
 
