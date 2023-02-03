@@ -52,17 +52,17 @@ void replace_home(char *path)
 /**
  * Converts any user input path for the program to some absolute executable path
  */
-int set_executable_path(char **argv)
+int set_executable_path(char *path)
 {
-    replace_home(argv[0]);
-    if (strchr(argv[0], '/') != NULL) // Absolute or Relative path
+    replace_home(path);
+    if (strchr(path, '/') != NULL) // Absolute or Relative path
     {
-        if (access(argv[0], F_OK) != 0)
+        if (access(path, F_OK) != 0)
         {
             perror("Exection failed: No such file or directory\n");
             return 1;
         }
-        else if (access(argv[0], X_OK) != 0)
+        else if (access(path, X_OK) != 0)
         {
             perror("Exection failed: Permission denied\n");
             return 2;
@@ -76,16 +76,16 @@ int set_executable_path(char **argv)
 
         while (env_paths[i] != NULL)
         {
-            sprintf(catenated_path, "%s/%s", env_paths[i], argv[0]);
+            sprintf(catenated_path, "%s/%s", env_paths[i], path);
             if (access(catenated_path, X_OK) == 0)
             {
-                strcpy(argv[0], catenated_path);
+                strcpy(path, catenated_path);
                 return 0;
             }
             i++;
         }
         // Neither a path nor a file found in $PATH
-        fprintf(stderr, "%s: Invalid use of command\n", argv[0]);
+        fprintf(stderr, "%s: Invalid use of command\n", path);
         return 3;
     }
 }
@@ -135,7 +135,7 @@ void exec_redirect_input(int argc, char **argv)
 
 void run_redirect_input(int argc, char **argv)
 {
-    if (set_executable_path(argv) == 0)
+    if (set_executable_path(argv[0]) == 0)
         exec_redirect_input(argc, argv);
 }
 
@@ -184,7 +184,7 @@ void exec_redirect_output(int argc, char **argv)
 
 void run_redirect_output(int argc, char **argv)
 {
-    if (set_executable_path(argv) == 0)
+    if (set_executable_path(argv[0]) == 0)
         exec_redirect_output(argc, argv);
 }
 
@@ -205,7 +205,7 @@ void exec_background(int argc, char **argv)
 
 void run_background(int argc, char **argv)
 {
-    if (set_executable_path(argv) == 0)
+    if (set_executable_path(argv[0]) == 0)
         exec_background(argc, argv);
 }
 
@@ -231,7 +231,7 @@ void exec(char **argv)
 
 void run(char **argv)
 {
-    if (set_executable_path(argv) == 0)
+    if (set_executable_path(argv[0]) == 0)
         exec(argv);
 }
 
