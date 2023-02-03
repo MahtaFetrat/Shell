@@ -12,7 +12,9 @@ static const char *COMMANDS[] = {
     "^[[:space:]]*help[[:space:]]*$",
     "^[[:space:]]*cd[[:space:]]+[^[:space:]]+[[:space:]]*$",
     "^[[:space:]]*cwd[[:space:]]*$",
-    "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]]+)*[[:space:]]*$"};
+    "^[[:space:]]*history[[:space:]]*$",
+    "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]]+)*[[:space:]]*$",
+};
 
 int command_count;
 regex_t *compiled_regexes;

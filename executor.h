@@ -21,3 +21,8 @@ void execute_command(int cmd_code, int argc, char **argv);
  * Frees executor allocated spaces.
  */
 void destroy_executor();
+
+/**
+ * Add the input command to command history.
+ */
+void add_command_to_history(char *input);

@@ -7,8 +7,10 @@
 
 #define MAX_ENV_PATHS 50
 #define MAX_PATH_LEN 200
+#define MAX_COMMANDS_LEN 1000
 
 char **env_paths;
+char command_history[MAX_COMMANDS_LEN];
 
 void tokenize_env_paths(char *PATH, char **paths)
 {
@@ -35,7 +37,7 @@ void initialize_executor()
 
 /**
  * Converts any user input path for the program to some absolute executable path
-*/
+ */
 int set_executable_path(char **argv)
 {
     if (strchr(argv[0], '/') != NULL) // Absolute or Relative path
@@ -122,6 +124,11 @@ void cd(char **argv)
     }
 }
 
+void history()
+{
+    printf("%s", command_history);
+}
+
 void print_help()
 {
     printf("These shell commands are defined internally.  Type `help' to see this list.\n");
@@ -130,6 +137,7 @@ void print_help()
     printf("cwd\t\t\tPrint the name of the current working directory.\n");
     printf("[program] [args ...]\tExecute program with absolute/relative path or found in PATH dirs with the given args.\n");
     printf("help\t\t\tDisplay information about builtin commands.\n");
+    printf("history\t\t\tDisplay history of commands.\n");
 }
 
 void execute_command(int cmd_code, int argc, char **argv)
@@ -140,8 +148,16 @@ void execute_command(int cmd_code, int argc, char **argv)
         cd(argv);
     else if (cmd_code == 3) // cwd command
         cwd();
-    else if (cmd_code == 4) // run command
+    else if (cmd_code == 4) // history command
+        history();
+    else if (cmd_code == 5) // run command
         run_program(argv);
+}
+
+void add_command_to_history(char *input)
+{
+    strcat(command_history, input);
+    strcat(command_history, "\n");
 }
 
 void destroy_executor()
