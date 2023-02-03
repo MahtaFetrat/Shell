@@ -59,13 +59,12 @@ int set_executable_path(char **argv)
     {
         if (access(argv[0], F_OK) != 0)
         {
-            printf("%s\n", argv[0]);
-            printf("Exection failed: No such file or directory\n");
+            perror("Exection failed: No such file or directory\n");
             return 1;
         }
         else if (access(argv[0], X_OK) != 0)
         {
-            printf("Exection failed: Permission denied\n");
+            perror("Exection failed: Permission denied\n");
             return 2;
         }
         return 0;
@@ -86,7 +85,7 @@ int set_executable_path(char **argv)
             i++;
         }
         // Neither a path nor a file found in $PATH
-        printf("%s: Invalid use of command\n", argv[0]);
+        fprintf(stderr, "%s: Invalid use of command\n", argv[0]);
         return 3;
     }
 }
@@ -96,13 +95,13 @@ int redirect_output(char *filepath) {
     int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (file < 0) {
-        printf("Couldn't open output file\n");
+        perror("Couldn't open output file\n");
         return 1;
     }
     
     if (dup2(file, 1) < 0 || dup2(file, 2) < 0)     // Redirect STDOUT and STDERR to file.
     {
-        printf("Couldn't redirect output to file\n");
+        perror("Couldn't redirect output to file\n");
         return 2;
     }
 
@@ -175,7 +174,7 @@ void cd(char **argv)
 
     if (chdir(argv[1]) != 0)
     {
-        printf("cd: Inaccessible directory\n");
+        perror("cd: Inaccessible directory\n");
     }
 }
 
