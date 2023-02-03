@@ -39,35 +39,37 @@ void initialize_executor()
 /**
  * Replace ~ by HOME since non-recognized by chdir.
  */
-void replace_home(char *path)
+void replace_home(char *new_path, char *path)
 {
+    strcpy(new_path, path);
     if (strcmp(path, "~") == 0 || (path[0] == '~' && path[1] == '/'))
     {
-        char home_replaced[200];
-        sprintf(home_replaced, "%s%s", getenv("HOME"), path + 1);
-        strcpy(path, home_replaced);
+        sprintf(new_path, "%s%s", getenv("HOME"), path + 1);
     }
 }
 
 /**
  * Converts any user input path for the program to some absolute executable path
  */
-int set_executable_path(char *path)
+char *set_executable_path(char *path)
 {
-    replace_home(path);
-    if (strchr(path, '/') != NULL) // Absolute or Relative path
+    char *executable_path = (char *) malloc (200 * sizeof(char));
+
+    replace_home(executable_path, path);
+
+    if (strchr(executable_path, '/') != NULL) // Absolute or Relative path
     {
-        if (access(path, F_OK) != 0)
+        if (access(executable_path, F_OK) != 0)
         {
             perror("Exection failed: No such file or directory\n");
-            return 1;
+            return NULL;
         }
-        else if (access(path, X_OK) != 0)
+        else if (access(executable_path, X_OK) != 0)
         {
             perror("Exection failed: Permission denied\n");
-            return 2;
+            return NULL;
         }
-        return 0;
+        return executable_path;
     }
     else // Lookup in the $PATH directories
     {
@@ -76,24 +78,27 @@ int set_executable_path(char *path)
 
         while (env_paths[i] != NULL)
         {
-            sprintf(catenated_path, "%s/%s", env_paths[i], path);
+            sprintf(catenated_path, "%s/%s", env_paths[i], executable_path);
             if (access(catenated_path, X_OK) == 0)
             {
-                strcpy(path, catenated_path);
-                return 0;
+                strcpy(executable_path, catenated_path);
+                return executable_path;
             }
             i++;
         }
         // Neither a path nor a file found in $PATH
         fprintf(stderr, "%s: Invalid use of command\n", path);
-        return 3;
+        return NULL;
     }
 }
 
 int redirect_input(char *filepath)
 {
-    replace_home(filepath);
-    int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    char *abs_filepath = (char *) malloc (200 * sizeof(char));
+
+    replace_home(abs_filepath, filepath);
+
+    int file = open(abs_filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (file < 0)
     {
@@ -135,14 +140,19 @@ void exec_redirect_input(int argc, char **argv)
 
 void run_redirect_input(int argc, char **argv)
 {
-    if (set_executable_path(argv[0]) == 0)
-        exec_redirect_input(argc, argv);
+    char *executable_path = set_executable_path(argv[0]);
+    if (executable_path == NULL)
+        return;
+    argv[0] = executable_path;
+    exec_redirect_input(argc, argv);
 }
 
 int redirect_output(char *filepath)
 {
-    replace_home(filepath);
-    int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    char *abs_filepath = (char *) malloc (200 * sizeof(char));
+
+    replace_home(abs_filepath, filepath);
+    int file = open(abs_filepath, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
     if (file < 0)
     {
@@ -184,8 +194,11 @@ void exec_redirect_output(int argc, char **argv)
 
 void run_redirect_output(int argc, char **argv)
 {
-    if (set_executable_path(argv[0]) == 0)
-        exec_redirect_output(argc, argv);
+    char *executable_path = set_executable_path(argv[0]);
+    if (executable_path == NULL)
+        return;
+    argv[0] = executable_path;
+    exec_redirect_output(argc, argv);
 }
 
 void exec_background(int argc, char **argv)
@@ -205,8 +218,11 @@ void exec_background(int argc, char **argv)
 
 void run_background(int argc, char **argv)
 {
-    if (set_executable_path(argv[0]) == 0)
-        exec_background(argc, argv);
+    char *executable_path = set_executable_path(argv[0]);
+    if (executable_path == NULL)
+        return;
+    argv[0] = executable_path;
+    exec_background(argc, argv);
 }
 
 void run_exec_parallel(char *command)
@@ -294,8 +310,11 @@ void exec(char **argv)
 
 void run(char **argv)
 {
-    if (set_executable_path(argv[0]) == 0)
-        exec(argv);
+    char *executable_path = set_executable_path(argv[0]);
+    if (executable_path == NULL)
+        return;
+    argv[0] = executable_path;
+    exec(argv);
 }
 
 void cwd()
@@ -307,12 +326,16 @@ void cwd()
 
 void cd(char **argv)
 {
-    replace_home(argv[1]);
+    char *abs_path = (char *) malloc (200 * sizeof(char));
 
-    if (chdir(argv[1]) != 0)
+    replace_home(abs_path, argv[1]);
+
+    if (chdir(abs_path) != 0)
     {
         perror("cd: Inaccessible directory\n");
     }
+
+    free(abs_path);
 }
 
 void history()
