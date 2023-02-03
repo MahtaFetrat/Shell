@@ -38,8 +38,8 @@ void initialize_executor()
 
 /**
  * Replace ~ by HOME since non-recognized by chdir.
-*/
-void replace_home(char *path) 
+ */
+void replace_home(char *path)
 {
     if (strcmp(path, "~") == 0 || (path[0] == '~' && path[1] == '/'))
     {
@@ -90,16 +90,18 @@ int set_executable_path(char **argv)
     }
 }
 
-int redirect_input(char *filepath) {
+int redirect_input(char *filepath)
+{
     replace_home(filepath);
     int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-    if (file < 0) {
+    if (file < 0)
+    {
         perror("Couldn't open input file\n");
         return 1;
     }
-    
-    if (dup2(file, STDIN_FILENO) < 0)     // Redirect STDIN.
+
+    if (dup2(file, STDIN_FILENO) < 0) // Redirect STDIN.
     {
         perror("Couldn't redirect input from file\n");
         return 2;
@@ -109,7 +111,8 @@ int redirect_input(char *filepath) {
     return 0;
 }
 
-void exec_redirect_input(int argc, char **argv) {
+void exec_redirect_input(int argc, char **argv)
+{
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -117,9 +120,9 @@ void exec_redirect_input(int argc, char **argv) {
     }
     else if (pid == 0)
     {
-        if (redirect_input(argv[argc - 1]) != 0) 
+        if (redirect_input(argv[argc - 1]) != 0)
             return;
-        
+
         argv[argc - 2] = NULL;
         if (execv(argv[0], argv))
             perror("Execution failed");
@@ -130,21 +133,24 @@ void exec_redirect_input(int argc, char **argv) {
     }
 }
 
-void run_redirect_input(int argc, char **argv) {
+void run_redirect_input(int argc, char **argv)
+{
     if (set_executable_path(argv) == 0)
         exec_redirect_input(argc, argv);
 }
 
-int redirect_output(char *filepath) {
+int redirect_output(char *filepath)
+{
     replace_home(filepath);
     int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-    if (file < 0) {
+    if (file < 0)
+    {
         perror("Couldn't open output file\n");
         return 1;
     }
-    
-    if (dup2(file, STDOUT_FILENO) < 0 || dup2(file, STDERR_FILENO) < 0)     // Redirect STDOUT and STDERR to file.
+
+    if (dup2(file, STDOUT_FILENO) < 0 || dup2(file, STDERR_FILENO) < 0) // Redirect STDOUT and STDERR to file.
     {
         perror("Couldn't redirect output to file\n");
         return 2;
@@ -154,7 +160,8 @@ int redirect_output(char *filepath) {
     return 0;
 }
 
-void exec_redirect_output(int argc, char **argv) {
+void exec_redirect_output(int argc, char **argv)
+{
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -162,9 +169,9 @@ void exec_redirect_output(int argc, char **argv) {
     }
     else if (pid == 0)
     {
-        if (redirect_output(argv[argc - 1]) != 0) 
+        if (redirect_output(argv[argc - 1]) != 0)
             return;
-        
+
         argv[argc - 2] = NULL;
         if (execv(argv[0], argv))
             perror("Execution failed");
@@ -175,9 +182,31 @@ void exec_redirect_output(int argc, char **argv) {
     }
 }
 
-void run_redirect_output(int argc, char **argv) {
+void run_redirect_output(int argc, char **argv)
+{
     if (set_executable_path(argv) == 0)
         exec_redirect_output(argc, argv);
+}
+
+void exec_background(int argc, char **argv)
+{
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        argv[argc - 1] = NULL;
+        if (execv(argv[0], argv))
+            perror("Execution failed");
+    }
+}
+
+void run_background(int argc, char **argv)
+{
+    if (set_executable_path(argv) == 0)
+        exec_background(argc, argv);
 }
 
 void exec(char **argv)
@@ -253,7 +282,9 @@ void execute_command(int cmd_code, int argc, char **argv)
         run_redirect_output(argc, argv);
     else if (cmd_code == 6) // redirect input
         run_redirect_input(argc, argv);
-    else if (cmd_code == 7) // run command
+    else if (cmd_code == 7) // run background
+        run_background(argc, argv);
+    else if (cmd_code == 8) // run command
         run(argv);
 }
 

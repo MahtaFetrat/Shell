@@ -46,7 +46,7 @@ int main()
                 execute_command(cmd_code, argc, argv);
         }
         else
-            scanf("%*c");   // Consume newline character.
+            scanf("%*c"); // Consume newline character.
         add_command_to_history(input);
     };
     destroy_parser();
