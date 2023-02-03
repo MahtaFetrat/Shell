@@ -211,27 +211,31 @@ void run_background(int argc, char **argv)
 
 void run_exec_parallel(char *command)
 {
-    pid_t pid = fork();
-    if (pid < 0)
+    char **argv = (char **)malloc(50 * sizeof(char *));
+    argv[0] = (char *)malloc(100 * sizeof(char *));
+
+    char *ptr;
+    strcpy(argv[0], strtok_r(command, " ", &ptr));
+
+    int j = 0;
+    while (argv[j] != NULL)
     {
-        perror("Failed to create new process");
+        argv[++j] = strtok_r(NULL, " ", &ptr);
     }
-    else if (pid == 0)
+    if (set_executable_path(argv[0]) == 0)
     {
-        char **argv = (char **)malloc(50 * sizeof(char *));
-        argv[0] = (char *)malloc(100 * sizeof(char *));
-
-        char *ptr;
-        strcpy(argv[0], strtok_r(command, " ", &ptr));
-
-        int j = 0;
-        while (argv[j] != NULL)
+        pid_t pid = fork();
+        if (pid < 0)
         {
-            argv[++j] = strtok_r(NULL, " ", &ptr);
+            perror("Failed to create new process");
         }
-        if (execv(argv[0], argv))
+        else if (pid == 0)
         {
-            perror("Execution failed");
+
+            if (execv(argv[0], argv))
+            {
+                perror("Execution failed");
+            }
         }
     }
 }
