@@ -4,6 +4,7 @@
 #include "executor.h"
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #define MAX_COMMAND_LEN 20
 
@@ -57,7 +58,6 @@ void read_predefined_commands()
 
 int main()
 {
-
     int argc;
     char **argv = (char **)malloc(MAX_CMD_ARG_COUNT * sizeof(char *));
     argv[0] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char *)); // First arg is allocted for path.

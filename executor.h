@@ -18,7 +18,7 @@ void initialize_executor();
 void execute_command(int cmd_code, int argc, char **argv);
 
 /**
- * Frees executor allocated spaces.
+ * Frees executor allocated spaces and temporary files.
  */
 void destroy_executor();
 

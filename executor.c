@@ -5,10 +5,12 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #define MAX_ENV_PATHS 50
 #define MAX_PATH_LEN 200
 #define MAX_COMMANDS_LEN 1000
+#define TEMPFILENAME "/tmp/shellt"
 
 char **env_paths;
 char command_history[MAX_COMMANDS_LEN];
@@ -88,6 +90,32 @@ int set_executable_path(char *path)
         fprintf(stderr, "%s: Invalid use of command\n", path);
         return 3;
     }
+}
+
+void exec(char **argv)
+{
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        if (execv(argv[0], argv))
+        {
+            perror("Execution failed");
+        }
+    }
+    else
+    {
+        waitpid(pid, NULL, 0);
+    }
+}
+
+void run(char **argv)
+{
+    if (set_executable_path(argv[0]) == 0)
+        exec(argv);
 }
 
 int redirect_input(char *filepath)
@@ -188,6 +216,89 @@ void run_redirect_output(int argc, char **argv)
         exec_redirect_output(argc, argv);
 }
 
+int redirect_pipe_out(int tempfile)
+{
+    if (dup2(tempfile, STDOUT_FILENO) < 0 || dup2(tempfile, STDERR_FILENO) < 0) // Redirect STDOUT and STDERR to file.
+    {
+        perror("Couldn't pipe output\n");
+        return 1;
+    }
+
+    return 0;
+}
+
+void exec_pipe_out(char **argv, int tempfile)
+{
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        if (redirect_pipe_out(tempfile) != 0)
+            return;
+
+        if (execv(argv[0], argv))
+            perror("Execution failed");
+    }
+}
+
+int create_tempfile() {
+    int tempfile = open(TEMPFILENAME, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+    if (tempfile < 0)
+    {
+        perror("Couldn't open pipe file\n");
+        return -1;
+    }
+
+    return tempfile;
+}
+
+/**
+ * utility function to find index of | char in the arguments.
+*/
+int get_pipe_char_idx(int argc ,char **argv)
+{
+    for (int i = 0; i< argc; i++)
+        if (strcmp(argv[i], "|") == 0)
+            return i;
+}
+
+/**
+ * utility function to shift the arguments of the second command to the first.
+*/
+void shift_args(char **argv, int argc, int pipe_char_idx)
+{
+    strcpy(argv[0], argv[pipe_char_idx + 1]);
+    for (int i = 1; i < argc - pipe_char_idx - 1; i++)
+    {
+        argv[i] = argv[i + pipe_char_idx + 1];
+    }
+    argv[argc - pipe_char_idx - 1] = TEMPFILENAME;
+    argv[argc - pipe_char_idx] = NULL;
+}
+
+void run_piped(int argc, char **argv)
+{
+    // Replace | with NULL which separates two commands.
+    int pipe_char_idx = get_pipe_char_idx(argc, argv);
+    argv[pipe_char_idx] = NULL;
+
+    if (set_executable_path(argv[0]) != 0)
+        return;
+    
+    int tempfile = create_tempfile();
+    if (tempfile < 0)
+        return;
+    exec_pipe_out(argv, tempfile);
+    close(tempfile);
+
+    shift_args(argv, argc, pipe_char_idx);
+    run(argv);
+}
+
 void exec_background(int argc, char **argv)
 {
     pid_t pid = fork();
@@ -207,32 +318,6 @@ void run_background(int argc, char **argv)
 {
     if (set_executable_path(argv[0]) == 0)
         exec_background(argc, argv);
-}
-
-void exec(char **argv)
-{
-    pid_t pid = fork();
-    if (pid < 0)
-    {
-        perror("Failed to create new process");
-    }
-    else if (pid == 0)
-    {
-        if (execv(argv[0], argv))
-        {
-            perror("Execution failed");
-        }
-    }
-    else
-    {
-        waitpid(pid, NULL, 0);
-    }
-}
-
-void run(char **argv)
-{
-    if (set_executable_path(argv[0]) == 0)
-        exec(argv);
 }
 
 void cwd()
@@ -282,9 +367,11 @@ void execute_command(int cmd_code, int argc, char **argv)
         run_redirect_output(argc, argv);
     else if (cmd_code == 6) // redirect input
         run_redirect_input(argc, argv);
-    else if (cmd_code == 7) // run background
+    else if (cmd_code == 7) // run piped
+        run_piped(argc, argv);
+    else if (cmd_code == 8) // run background
         run_background(argc, argv);
-    else if (cmd_code == 8) // run command
+    else if (cmd_code == 9) // run command
         run(argv);
 }
 
@@ -297,4 +384,6 @@ void add_command_to_history(char *input)
 void destroy_executor()
 {
     free(env_paths);
+    if (access(TEMPFILENAME, F_OK))
+        remove(TEMPFILENAME);
 }
