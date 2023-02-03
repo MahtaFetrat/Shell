@@ -37,10 +37,24 @@ void initialize_executor()
 }
 
 /**
+ * Replace ~ by HOME since non-recognized by chdir.
+*/
+void replace_home(char *path) 
+{
+    if (strcmp(path, "~") == 0 || (path[0] == '~' && path[1] == '/'))
+    {
+        char home_replaced[200];
+        sprintf(home_replaced, "%s%s", getenv("HOME"), path + 1);
+        strcpy(path, home_replaced);
+    }
+}
+
+/**
  * Converts any user input path for the program to some absolute executable path
  */
 int set_executable_path(char **argv)
 {
+    replace_home(argv[0]);
     if (strchr(argv[0], '/') != NULL) // Absolute or Relative path
     {
         if (access(argv[0], F_OK) != 0)
@@ -78,6 +92,7 @@ int set_executable_path(char **argv)
 }
 
 int redirect_output(char *filepath) {
+    replace_home(filepath);
     int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (file < 0) {
@@ -156,13 +171,7 @@ void cwd()
 
 void cd(char **argv)
 {
-    // Replace ~ by HOME since non-recognized by chdir.
-    if (strcmp(argv[1], "~") == 0 || (argv[1][0] == '~' && argv[1][1] == '/'))
-    {
-        char home_replaced[200];
-        sprintf(home_replaced, "%s%s", getenv("HOME"), argv[1] + 1);
-        strcpy(argv[1], home_replaced);
-    }
+    replace_home(argv[1]);
 
     if (chdir(argv[1]) != 0)
     {
