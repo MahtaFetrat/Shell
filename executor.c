@@ -90,6 +90,51 @@ int set_executable_path(char **argv)
     }
 }
 
+int redirect_input(char *filepath) {
+    replace_home(filepath);
+    int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+    if (file < 0) {
+        perror("Couldn't open input file\n");
+        return 1;
+    }
+    
+    if (dup2(file, STDIN_FILENO) < 0)     // Redirect STDIN.
+    {
+        perror("Couldn't redirect input from file\n");
+        return 2;
+    }
+
+    close(file);
+    return 0;
+}
+
+void exec_redirect_input(int argc, char **argv) {
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        if (redirect_input(argv[argc - 1]) != 0) 
+            return;
+        
+        argv[argc - 2] = NULL;
+        if (execv(argv[0], argv))
+            perror("Execution failed");
+    }
+    else
+    {
+        waitpid(pid, NULL, 0);
+    }
+}
+
+void run_redirect_input(int argc, char **argv) {
+    if (set_executable_path(argv) == 0)
+        exec_redirect_input(argc, argv);
+}
+
 int redirect_output(char *filepath) {
     replace_home(filepath);
     int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
@@ -99,7 +144,7 @@ int redirect_output(char *filepath) {
         return 1;
     }
     
-    if (dup2(file, 1) < 0 || dup2(file, 2) < 0)     // Redirect STDOUT and STDERR to file.
+    if (dup2(file, STDOUT_FILENO) < 0 || dup2(file, STDERR_FILENO) < 0)     // Redirect STDOUT and STDERR to file.
     {
         perror("Couldn't redirect output to file\n");
         return 2;
@@ -206,7 +251,9 @@ void execute_command(int cmd_code, int argc, char **argv)
         history();
     else if (cmd_code == 5) // redirect output
         run_redirect_output(argc, argv);
-    else if (cmd_code == 6) // run command
+    else if (cmd_code == 6) // redirect input
+        run_redirect_input(argc, argv);
+    else if (cmd_code == 7) // run command
         run(argv);
 }
 
