@@ -260,12 +260,16 @@ void history()
 void print_help()
 {
     printf("These shell commands are defined internally.  Type `help' to see this list.\n");
-    printf("quit\t\t\tExit the shell\n");
-    printf("cd [dir]\t\tChange the shell working directory.\n");
-    printf("cwd\t\t\tPrint the name of the current working directory.\n");
-    printf("[program] [args ...]\tExecute program with absolute/relative path or found in PATH dirs with the given args.\n");
-    printf("help\t\t\tDisplay information about builtin commands.\n");
-    printf("history\t\t\tDisplay history of commands.\n");
+    printf("quit\t\t\t\t\t\tExit the shell\n");
+    printf("cd [dir]\t\t\t\t\tChange the shell working directory.\n");
+    printf("cwd\t\t\t\t\t\tPrint the name of the current working directory.\n");
+    printf("[program] [args ...]\t\t\t\tExecute program with absolute/relative path or found in PATH dirs with the given args.\n");
+    printf("[program] [args ...] &\t\t\t\tExecute program in background.\n");
+    printf("[program] [args ...] | [program] [args ...]\tExecutes second program with the first program output.\n");
+    printf("[program] [args ...] > [file]\t\t\tExecutes the program and writes its output to file.\n");
+    printf("[program] [args ...] < [file]\t\t\tExecutes the program with the file as its input stream.\n");
+    printf("help\t\t\t\t\t\tDisplay information about builtin commands.\n");
+    printf("history\t\t\t\t\t\tDisplay history of commands.\n");
 }
 
 void execute_command(int cmd_code, int argc, char **argv)
