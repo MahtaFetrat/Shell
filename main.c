@@ -27,7 +27,6 @@ void print_prompt()
 
 void read_predefined_commands()
 {
-    // printf("start of func\n");
     FILE *fp;
     fp = fopen("my_commands.txt", "r");
 
@@ -39,40 +38,33 @@ void read_predefined_commands()
         predefined_command_values[i] = (char *)malloc(MAX_COMMAND_LEN * sizeof(char));
     }
 
-    // printf("allocated\n");
-
     int count = 0;
     char buffer[10][MAX_COMMAND_LEN];
     char str[MAX_COMMAND_LEN];
-    // printf("got buffer\n");
     while (EOF != fscanf(fp, "%30[^\n]\n", str))
     {
-        // printf("str");
         strcpy(buffer[count], str);
         count++;
     }
-    // printf("fulled buffer\n");
     command_num = count;
-    // printf("count finished\n");
     for (int i = 0; i < count; i++)
     {
         predefined_command_keys[i] = strtok(buffer[i], "::");
         predefined_command_values[i] = strtok(NULL, "::");
     }
     fclose(fp);
-    // printf("func finished\n");
 }
 
 int main()
 {
+
     int argc;
     char **argv = (char **)malloc(MAX_CMD_ARG_COUNT * sizeof(char *));
     argv[0] = (char *)malloc(MAX_CMD_ARG_LEN * sizeof(char *)); // First arg is allocted for path.
 
+    read_predefined_commands();
     initialize_parser();
     initialize_executor();
-    // printf("parser initialized\n");
-    read_predefined_commands();
 
     char input[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
     char predefined_command[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
@@ -85,16 +77,15 @@ int main()
         {
             int flag = 0;
             int cmd_code;
-            // for (int i = 0; i < command_num; i++)
-            // {
-            //     printf("command %d: %s\n", i, predefined_command_keys[i]);
-            //     if (strcmp(input, predefined_command_keys[i]) == 0)
-            //     {
-            //         cmd_code = parse(predefined_command_values[i], &argc, argv);
-            //         flag = 1;
-            //         break;
-            //     }
-            // }
+            for (int i = 0; i < command_num; i++)
+            {
+                if (strcmp(input, predefined_command_keys[i]) == 0)
+                {
+                    cmd_code = parse(predefined_command_values[i], &argc, argv);
+                    flag = 1;
+                    break;
+                }
+            }
             if (flag == 0)
             {
                 cmd_code = parse(input, &argc, argv);
