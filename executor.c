@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <fcntl.h>
 
 #define MAX_ENV_PATHS 50
 #define MAX_PATH_LEN 200
@@ -44,6 +45,7 @@ int set_executable_path(char **argv)
     {
         if (access(argv[0], F_OK) != 0)
         {
+            printf("%s\n", argv[0]);
             printf("Exection failed: No such file or directory\n");
             return 1;
         }
@@ -75,6 +77,50 @@ int set_executable_path(char **argv)
     }
 }
 
+int redirect_output(char *filepath) {
+    int file = open(filepath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+    if (file < 0) {
+        printf("Couldn't open output file\n");
+        return 1;
+    }
+    
+    if (dup2(file, 1) < 0 || dup2(file, 2) < 0)     // Redirect STDOUT and STDERR to file.
+    {
+        printf("Couldn't redirect output to file\n");
+        return 2;
+    }
+
+    close(file);
+    return 0;
+}
+
+void exec_redirect_output(int argc, char **argv) {
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        perror("Failed to create new process");
+    }
+    else if (pid == 0)
+    {
+        if (redirect_output(argv[argc - 1]) != 0) 
+            return;
+        
+        argv[argc - 2] = NULL;
+        if (execv(argv[0], argv))
+            perror("Execution failed");
+    }
+    else
+    {
+        waitpid(pid, NULL, 0);
+    }
+}
+
+void run_redirect_output(int argc, char **argv) {
+    if (set_executable_path(argv) == 0)
+        exec_redirect_output(argc, argv);
+}
+
 void exec(char **argv)
 {
     pid_t pid = fork();
@@ -95,7 +141,7 @@ void exec(char **argv)
     }
 }
 
-void run_program(char **argv)
+void run(char **argv)
 {
     if (set_executable_path(argv) == 0)
         exec(argv);
@@ -150,8 +196,10 @@ void execute_command(int cmd_code, int argc, char **argv)
         cwd();
     else if (cmd_code == 4) // history command
         history();
-    else if (cmd_code == 5) // run command
-        run_program(argv);
+    else if (cmd_code == 5) // redirect output
+        run_redirect_output(argc, argv);
+    else if (cmd_code == 6) // run command
+        run(argv);
 }
 
 void add_command_to_history(char *input)

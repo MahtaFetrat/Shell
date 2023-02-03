@@ -10,11 +10,11 @@ const int MAX_CMD_ARG_LEN = 100;
 static const char *COMMANDS[] = {
     "^[[:space:]]*quit[[:space:]]*$",
     "^[[:space:]]*help[[:space:]]*$",
-    "^[[:space:]]*cd[[:space:]]+[^[:space:]]+[[:space:]]*$",
+    "^[[:space:]]*cd[[:space:]]+[^[:space:]]+[[:space:]]*$",        // cd [dir]
     "^[[:space:]]*cwd[[:space:]]*$",
     "^[[:space:]]*history[[:space:]]*$",
-    "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]]+)*[[:space:]]*$",
-};
+    "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]*)*[[:space:]]+>[[:space:]]+[^[:space:]><]+[[:space:]]*$",    // [program] [args ...] > [outfile]
+    "^[[:space:]]*[^[:space:]]+([[:space:]]+[^[:space:]><]+)*[[:space:]]*$"};     // [program] [args ...]
 
 int command_count;
 regex_t *compiled_regexes;
