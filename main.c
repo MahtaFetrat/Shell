@@ -67,7 +67,6 @@ int main()
     initialize_executor();
 
     char input[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
-    char predefined_command[MAX_CMD_ARG_COUNT * (MAX_CMD_ARG_LEN + 2)];
     int quitted = 0;
 
     while (!quitted)
@@ -75,6 +74,8 @@ int main()
         print_prompt();
         if (scanf("%[^\n]%*c", input) != 0) // Input line (including white-spaces).
         {
+            add_command_to_history(input);
+            
             int flag = 0;
             int cmd_code;
             for (int i = 0; i < command_num; i++)
@@ -100,7 +101,6 @@ int main()
         }
         else
             scanf("%*c"); // Consume newline character.
-        add_command_to_history(input);
     };
     destroy_parser();
     destroy_executor();
