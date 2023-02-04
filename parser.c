@@ -33,15 +33,39 @@ void initialize_parser()
     }
 }
 
+int ends_with(char *str, char ch)
+{
+    return str[strlen(str) - 1] == ch;
+}
+
+void remove_last_char(char *str)
+{
+    str[strlen(str) - 1] = 0;
+}
+
 void get_args(char *input, int *argc, char **argv)
 {
     char *saveptr;
+    int i = 1;
     strcpy(argv[0], strtok_r(input, " ", &saveptr));
-
-    int i = 0;
-    while (argv[i] != NULL)
+    if (ends_with(argv[0], ';'))
     {
-        argv[++i] = strtok_r(NULL, " ", &saveptr);
+        remove_last_char(argv[0]);
+        argv[1] = NULL;
+        i = 2;
+    }
+
+    while (1)
+    {
+        argv[i] = strtok_r(NULL, " ", &saveptr);
+        if (argv[i] == NULL)
+            break;
+        if (ends_with(argv[i], ';'))
+        {
+            remove_last_char(argv[i]);
+            argv[++i] = NULL;
+        }
+        i++;
     }
     *argc = i;
 }
