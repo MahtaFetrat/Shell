@@ -240,16 +240,6 @@ int exec_parallel(char **argv)
 
 void run_parallel(int argc, char **argv)
 {  
-    // int i = 0;
-    // while (1) {
-    //     if (argv[i] != NULL)
-    //         printf("%s\n", argv[i]);
-    //     else
-    //         printf("NULL\n");
-    //     i++;
-    //     if (i > argc)
-    //         break;
-    // }
     for (int i = -1; i < argc; i++)
         if ((i == -1 || argv[i] == NULL) && i < argc) {
             char *executable_path = set_executable_path(argv[i + 1]);
